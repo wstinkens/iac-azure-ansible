@@ -4,22 +4,16 @@
   become: no
   gather_facts: no
 
-  vars:
-    resourcegroup_names:
-    - wostrg1
-    - wostrg2
-
   tasks:
   - name: Include Variables
     include_vars:
       dir: vars
   
   - name: Include Azure Resource Groups Tasks list 
-    include_tasks: azure_create_resourcegroups.yml
+    include_tasks: tasks/azure_create_resourcegroups.yml
   
   - name: Include Azure VNets Task List
-    include_tasks: azure_create_network.yml
+    include_tasks: tasks/azure_create_network.yml
   
   - name: Include Azure Nodes Task List
-    include_tasks: azure_create_nodes.yml
-
+    include_tasks: tasks/azure_create_nodes.yml
