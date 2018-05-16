@@ -1,0 +1,5 @@
+- name: Create Resource Group
+  azure_rm_resourcegroup:
+    name: "{{ item }}"
+    location: "{{ resourcegroup_location | default('westeurope') }}"
+  loop: "{{ resourcegroup_names }}"

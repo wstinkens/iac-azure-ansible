@@ -1,0 +1,16 @@
+---
+- name: Deploy Infrastructure As Code setup on Azure
+  hosts: localhost
+  become: no
+  gather_facts: no
+
+  vars:
+    resourcegroup_names:
+    - wostrg1
+    - wostrg2
+
+  tasks:
+  - include_tasks: azure_create_resourcegroups.yml
+  - include_tasks: azure_create_network.yml
+  - include_tasks: azure_create_nodes.yml
+

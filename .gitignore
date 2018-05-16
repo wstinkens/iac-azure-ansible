@@ -1,0 +1,7 @@
+*.retry
+.vagrant
+*.zip
+
+# Ignore everything in roles/ execpt requirements.yml
+roles/*
+!roles/requirements.yml

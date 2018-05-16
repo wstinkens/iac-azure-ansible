@@ -1,0 +1,30 @@
+---
+- name: Delete All Azure Resource Groups
+  hosts: localhost
+
+  vars_prompt:
+  - name: "confirm"
+    prompt: "Are you sure you want to delete ALL resource groups? (y/n)"
+    default: "n"
+    private: no
+    
+  tasks:
+  - name: Get All Resourcegroups
+    azure_rm_resourcegroup_facts:
+    register: rg_fact_output
+  
+  - debug:
+      msg: "Resourcegroup name: {{ item }}"
+      verbosity: 2
+    loop: "{{rg_fact_output|json_query('ansible_facts.azure_resourcegroups[*].name')}}"
+  - debug:
+      var: confirm
+      verbosity: 2
+
+  - name: Force Delete Resource Group
+    azure_rm_resourcegroup:
+      name: "{{ item }}"
+      state: absent
+      force: "{{ force_delete | default('yes') }}"
+    when: confirm == "y"
+    loop: "{{rg_fact_output|json_query('ansible_facts.azure_resourcegroups[*].name')}}"
