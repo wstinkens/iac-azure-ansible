@@ -1,3 +1,26 @@
-resourcegroup_names:
-  - wostrg1
-  - wostrg2
+location: westeurope
+location_prefix: euw1
+admin_user: wouter
+ssh_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCveET081RsDCWUOjxsFTiwmQT9t1nUB1klKLwdGTXgsbwiwK31Vb5cdPpkii1PyEAG0mpVJooVzQmLfTDQ3Z4bGZdZdJoG37RgBPUdBKeYN1ewZogFXHATJsp1XhlLlPyANcikUZjULz0eY7qruGz1NEuHIGCOCujYJzSGCZOqZUE+8izABoa95jlnyYp7nxySvROuTsQ6hy7q6nbsYMt1wlOtNxFsJh+rcN7iDXSRGlpp/hBkJOmx3rUD+kvPC9AoBsFeZ1D0a69bqZhuPh4kp/mRX6Oxrl8kvuhjcisZ055OWpS2GZJ7PAUUEq27rymGPCnc7wgL0IzbGwuIH4rv
+
+mgmt_prefix: mgmt
+mgmt_resourcegroup: "{{location_prefix}}-{{mgmt_prefix}}-rg"
+mgmt_vnet: "{{location_prefix}}-{{mgmt_prefix}}-vnet"
+mgmt_vnet_range: 10.0.0.0/16
+mgmt_subnet: 10.0.1.0/24
+mgmt_bastion_subnet: 10.0.2.0/24
+mgmt_proxy_subnet: 10.0.3.0/24
+
+prod_prefix: prod
+prod_resourcegroup: "{{location_prefix}}-{{prod_prefix}}-rg"
+prod_vnet: "{{location_prefix}}-{{prod_prefix}}-vnet"
+prod_vnet_range: 10.1.0.0/16
+prod_subnet: 10.1.1.0/24
+prod_proxy_subnet: 10.1.2.0/24
+
+jenkins_node: "{{location_prefix}}-{{mgmt_prefix}}-jenkins"
+bastion_node: "{{location_prefix}}-{{mgmt_prefix}}-bastion"
+proxy_node: "{{location_prefix}}-{{mgmt_prefix}}-proxy"
+
+prod_proxy_node: "{{location_prefix}}-{{mgmt_prefix}}-proxy"
+prod_webserver_node: "{{location_prefix}}-{{mgmt_prefix}}-web"

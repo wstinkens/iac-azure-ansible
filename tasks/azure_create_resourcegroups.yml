@@ -1,5 +1,9 @@
-- name: Create Resource Group
+- name: Create Mgmt Resource Group
   azure_rm_resourcegroup:
-    name: "{{ item }}"
-    location: "{{ resourcegroup_location | default('westeurope') }}"
-  loop: "{{ resourcegroup_names }}"
+    name: "{{ mgmt_resourcegroup }}"
+    location: "{{ location | default('westeurope') }}"
+
+- name: Create Prod Resource Group
+  azure_rm_resourcegroup:
+    name: "{{ prod_resourcegroup }}"
+    location: "{{ location | default('westeurope') }}"
