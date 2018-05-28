@@ -1,0 +1,12 @@
+---
+- name: configure Bastion server
+  hosts: bastion
+  become: yes
+  gather_facts: yes
+
+  #vars:
+
+  tasks:
+  - name: Install Package vim
+    apt:
+      name: htop

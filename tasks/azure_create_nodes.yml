@@ -7,6 +7,7 @@
 
   - debug: 
       var: task_result.state.ip_address
+      #verbosity: 2
 
   - name: Create Mgmt Bastion virtual network inteface card
     azure_rm_networkinterface:
@@ -20,7 +21,7 @@
     azure_rm_virtualmachine:
       resource_group: "{{mgmt_resourcegroup}}"
       name: "{{bastion_node}}"
-      vm_size: Standard_DS1_v2
+      vm_size: "{{ nodesize }}"
       admin_username: "{{admin_user}}"
       ssh_password_enabled: false
       ssh_public_keys: 
@@ -28,7 +29,26 @@
           key_data: "{{ssh_key}}"
       network_interfaces: "{{bastion_node}}-nic"
       image:
-        offer: UbuntuServer
-        publisher: Canonical
-        sku: '16.04-LTS'
-        version: latest
+        offer: "{{ nodeimage.offer}}"
+        publisher: "{{ nodeimage.publisher }}"
+        sku: "{{ nodeimage.sku }}"
+        version: "{{ nodeimage.version }}"
+
+  - name: Create VM Extension
+    azure_rm_virtualmachine_extension:
+      name: myvmextension
+      location: "{{ location }}"
+      resource_group: "{{mgmt_resourcegroup}}"
+      virtual_machine_name: "{{bastion_node}}"
+      publisher: Microsoft.Azure.Extensions
+      virtual_machine_extension_type: CustomScript
+      type_handler_version: 2.0
+      settings: '{"commandToExecute": "touch /tmp/extentiontest "}'
+      auto_upgrade_minor_version: true
+
+  - name: add a host to inventory
+    add_host:
+      hostname: "{{ task_result.state.ip_address }}"
+      groups:
+        - mgmt
+        - bastion

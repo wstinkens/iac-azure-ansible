@@ -4,6 +4,7 @@
       name: "{{location_prefix}}-{{mgmt_prefix}}-nsg"
       rules:
         - name: SSH
+          source_address_prefix: "{{ ipify_public_ip }}"
           protocol: Tcp
           destination_port_range: 22
           access: Allow
@@ -16,6 +17,7 @@
       name: "{{location_prefix}}-{{prod_prefix}}-nsg"
       rules:
         - name: SSH
+          source_address_prefix: "{{ ipify_public_ip }}"
           protocol: Tcp
           destination_port_range: 22
           access: Allow

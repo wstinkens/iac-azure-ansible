@@ -1,0 +1,25 @@
+---
+- name: Deploy Infrastructure As Code setup on Azure
+  hosts: localhost
+  become: no
+  gather_facts: no
+
+  tasks:
+  - name: Include Variables
+    include_vars:
+      dir: ../vars
+
+  - name: get my public IP
+    ipify_facts:
+  - debug:
+      var: ipify_public_ip
+      verbosity: 2
+
+  - name: Include Azure Resource Groups Tasks list 
+    include_tasks: ../tasks/azure_create_resourcegroups.yml
+  
+  - name: Include Azure VNets Task List
+    include_tasks: ../tasks/azure_create_network.yml
+  
+  - name: Include Azure Nodes Task List
+    include_tasks: ../tasks/azure_create_nodes.yml
