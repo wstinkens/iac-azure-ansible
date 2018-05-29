@@ -1,54 +1,56 @@
-  - name: Create Mgmt Bastion public IP address
+  - name: Create {{ node.name }} public IP address in {{ node.resourcegroup }}
     azure_rm_publicipaddress:
-      resource_group: "{{mgmt_resourcegroup}}"
+      resource_group: "{{ node.resourcegroup }}"
       allocation_method: Dynamic
-      name: "{{bastion_node}}-pip"
-    register: task_result
+      name: "{{ node.name }}-pip"
 
-  - debug: 
-      var: task_result.state.ip_address
-      #verbosity: 2
+  - name: Print {{ node.name }} public IP address
+    debug: 
+      var: piptask_result.state.ip_address
+      verbosity: 2
 
-  - name: Create Mgmt Bastion virtual network inteface card
+  - name: Create {{ node.name }} virtual network inteface card in {{ node.resourcegroup }}
     azure_rm_networkinterface:
-      resource_group: "{{mgmt_resourcegroup}}"
-      name: "{{bastion_node}}-nic"
-      virtual_network: "{{mgmt_vnet}}"
-      subnet: "mgmt_bastion_subnet"
-      public_ip_name: "{{bastion_node}}-pip"
+      resource_group: "{{ node.resourcegroup }}"
+      name: "{{ node.name }}-nic"
+      virtual_network: "{{ node.vnet }}"
+      subnet: "{{ node.subnet }}"
+      public_ip_name: "{{ node.name }}-pip"
 
-  - name: Create Mgmt Bastion VM
+  - name: Create {{ node.name }} virtual machine in {{ node.resourcegroup }}
     azure_rm_virtualmachine:
-      resource_group: "{{mgmt_resourcegroup}}"
-      name: "{{bastion_node}}"
-      vm_size: "{{ nodesize }}"
+      resource_group: "{{ node.resourcegroup }}"
+      name: "{{ node.name }}"
+      vm_size: "{{ node.nodesize }}"
       admin_username: "{{admin_user}}"
       ssh_password_enabled: false
       ssh_public_keys: 
         - path: "/home/{{admin_user}}/.ssh/authorized_keys"
           key_data: "{{ssh_key}}"
-      network_interfaces: "{{bastion_node}}-nic"
+      network_interfaces: "{{ node.name }}-nic"
       image:
         offer: "{{ nodeimage.offer}}"
         publisher: "{{ nodeimage.publisher }}"
         sku: "{{ nodeimage.sku }}"
         version: "{{ nodeimage.version }}"
 
-  - name: Create VM Extension
-    azure_rm_virtualmachine_extension:
-      name: myvmextension
-      location: "{{ location }}"
-      resource_group: "{{mgmt_resourcegroup}}"
-      virtual_machine_name: "{{bastion_node}}"
-      publisher: Microsoft.Azure.Extensions
-      virtual_machine_extension_type: CustomScript
-      type_handler_version: 2.0
-      settings: '{"commandToExecute": "touch /tmp/extentiontest "}'
-      auto_upgrade_minor_version: true
+  - name: Create {{ node.name }} public IP address in {{ node.resourcegroup }}
+    azure_rm_publicipaddress:
+      resource_group: "{{ node.resourcegroup }}"
+      allocation_method: Dynamic
+      name: "{{ node.name }}-pip"
+    register: piptask_result
+    until: piptask_result.state.ip_address is defined
+    retries: 5
+    delay: 10
 
-  - name: add a host to inventory
+  - name: Print {{ node.name }} public IP address
+    debug: 
+      var: piptask_result.state.ip_address
+      verbosity: 2
+
+  - name: add {{ node.name }} host to in memory inventory
     add_host:
-      hostname: "{{ task_result.state.ip_address }}"
-      groups:
-        - mgmt
-        - bastion
+      hostname: "{{ piptask_result.state.ip_address }}"
+      groups: "{{ item }}"
+    loop: "{{ node.groups }}"

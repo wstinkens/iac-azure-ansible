@@ -8,26 +8,16 @@ nodeimage:
   publisher: Canonical
   sku: '16.04-LTS'
   version: latest
-nodesize: Standard_DS1_v2
+defaultsize: Standard_DS1_v2
 
 mgmt_prefix: mgmt
-mgmt_resourcegroup: "{{location_prefix}}-{{mgmt_prefix}}-rg"
-mgmt_vnet: "{{location_prefix}}-{{mgmt_prefix}}-vnet"
+
 mgmt_vnet_range: 10.0.0.0/16
 mgmt_subnet: 10.0.1.0/24
 mgmt_bastion_subnet: 10.0.2.0/24
 mgmt_proxy_subnet: 10.0.3.0/24
 
 prod_prefix: prod
-prod_resourcegroup: "{{location_prefix}}-{{prod_prefix}}-rg"
-prod_vnet: "{{location_prefix}}-{{prod_prefix}}-vnet"
 prod_vnet_range: 10.1.0.0/16
 prod_subnet: 10.1.1.0/24
 prod_proxy_subnet: 10.1.2.0/24
-
-jenkins_node: "{{location_prefix}}-{{mgmt_prefix}}-jenkins"
-bastion_node: "{{location_prefix}}-{{mgmt_prefix}}-bastion"
-proxy_node: "{{location_prefix}}-{{mgmt_prefix}}-proxy"
-
-prod_proxy_node: "{{location_prefix}}-{{mgmt_prefix}}-proxy"
-prod_webserver_node: "{{location_prefix}}-{{mgmt_prefix}}-web"

@@ -1,20 +1,7 @@
-  - name: Create Allow SSH NSG in Mgmt
+  - name: Create Allow SSH NSG for {{ vnet.name }}
     azure_rm_securitygroup:
-      resource_group: "{{mgmt_resourcegroup}}"
-      name: "{{location_prefix}}-{{mgmt_prefix}}-nsg"
-      rules:
-        - name: SSH
-          source_address_prefix: "{{ ipify_public_ip }}"
-          protocol: Tcp
-          destination_port_range: 22
-          access: Allow
-          priority: 1001
-          direction: Inbound  
-
-  - name: Create Allow SSH NSG in Prod
-    azure_rm_securitygroup:
-      resource_group: "{{prod_resourcegroup}}"
-      name: "{{location_prefix}}-{{prod_prefix}}-nsg"
+      resource_group: "{{ vnet.resourcegroup }}"
+      name: "{{location_prefix}}-{{vnet.env_prefix}}-nsg"
       rules:
         - name: SSH
           source_address_prefix: "{{ ipify_public_ip }}"
@@ -24,55 +11,17 @@
           priority: 1001
           direction: Inbound  
   
-  - name: Create Mgmt virtual network
+  - name: Create virtual network {{ vnet.name }}
     azure_rm_virtualnetwork:
-      resource_group: "{{ mgmt_resourcegroup }}"
-      name: "{{ mgmt_vnet }}"
-      address_prefixes: "{{ mgmt_vnet_range }}"
+      resource_group: "{{ vnet.resourcegroup }}"
+      name: "{{ vnet.name }}"
+      address_prefixes: "{{ vnet.range }}"
 
-  - name: Add Mgmt subnet
+  - name: Add subnets in {{ vnet.name}}
     azure_rm_subnet:
-      resource_group: "{{ mgmt_resourcegroup }}"
-      name: "mgmt_subnet"
-      address_prefix: "{{ mgmt_subnet }}"
-      virtual_network: "{{ mgmt_vnet }}"
-      security_group_name: "{{location_prefix}}-{{mgmt_prefix}}-nsg"
-
-  - name: Add Mgmt Proxy subnet
-    azure_rm_subnet:
-      resource_group: "{{ mgmt_resourcegroup }}"
-      name: "mgmt_proxy_subnet"
-      address_prefix: "{{ mgmt_proxy_subnet }}"
-      virtual_network: "{{ mgmt_vnet }}"
-      security_group_name: "{{location_prefix}}-{{mgmt_prefix}}-nsg"
-
-  - name: Add Mgmt Bastion subnet
-    azure_rm_subnet:
-      resource_group: "{{ mgmt_resourcegroup }}"
-      name: "mgmt_bastion_subnet"
-      address_prefix: "{{ mgmt_bastion_subnet }}"
-      virtual_network: "{{ mgmt_vnet }}"
-      security_group_name: "{{location_prefix}}-{{mgmt_prefix}}-nsg"
-
-  - name: Create Prod virtual network
-    azure_rm_virtualnetwork:
-      resource_group: "{{ prod_resourcegroup }}"
-      name: "{{ prod_vnet }}"
-      address_prefixes: "{{ prod_vnet_range }}"
-
-  - name: Add Prod subnet
-    azure_rm_subnet:
-      resource_group: "{{ prod_resourcegroup }}"
-      name: "prod_subnet"
-      address_prefix: "{{ prod_subnet }}"
-      virtual_network: "{{ prod_vnet }}"
-      security_group_name: "{{location_prefix}}-{{prod_prefix}}-nsg"
-
-  - name: Add Prod Proxy subnet
-    azure_rm_subnet:
-      resource_group: "{{ prod_resourcegroup }}"
-      name: "prod_proxy_subnet"
-      address_prefix: "{{ prod_proxy_subnet }}"
-      virtual_network: "{{ prod_vnet }}"
-      security_group_name: "{{location_prefix}}-{{prod_prefix}}-nsg"
-
+      resource_group: "{{ vnet.resourcegroup }}"
+      name: "{{ item.name }}"
+      address_prefix: "{{ item.prefix }}"
+      virtual_network: "{{ vnet.name }}"
+      security_group_name: "{{location_prefix}}-{{vnet.env_prefix}}-nsg"
+    loop: "{{ vnet.subnets }}"

@@ -1,12 +1,12 @@
 ---
-- name: configure Bastion server
-  hosts: bastion
+- name: configure Proxy server
+  hosts: proxy
   become: yes
   gather_facts: yes
 
   #vars:
 
   tasks:
-  - name: Install Package vim
+  - name: Install Package htop
     apt:
       name: htop

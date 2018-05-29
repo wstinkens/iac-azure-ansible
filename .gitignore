@@ -1,6 +1,7 @@
 *.retry
 .vagrant
 *.zip
+test.yml
 
 # Ignore everything in roles/ execpt requirements.yml
 roles/*

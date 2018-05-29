@@ -4,7 +4,7 @@
 
   vars_prompt:
   - name: "confirm"
-    prompt: "Are you sure you want to delete ALL resource groups? (y/n)"
+    prompt: "Are you sure you want to delete ALL resource groups in THIS SUBSCRIPTION (y/n)"
     default: "n"
     private: no
     

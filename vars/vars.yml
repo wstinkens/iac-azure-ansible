@@ -1,0 +1,52 @@
+mgmt_resourcegroup: "{{location_prefix}}-{{mgmt_prefix}}-rg"
+mgmt_vnet: "{{location_prefix}}-{{mgmt_prefix}}-vnet"
+
+prod_resourcegroup: "{{location_prefix}}-{{prod_prefix}}-rg"
+prod_vnet: "{{location_prefix}}-{{prod_prefix}}-vnet"
+
+resourcegroups:
+- name: "{{ mgmt_resourcegroup }}"
+- name: "{{ prod_resourcegroup }}"
+
+virtualnetworks:
+- name: "{{ mgmt_vnet }}"
+  resourcegroup: "{{ mgmt_resourcegroup }}"
+  env_prefix: "{{ mgmt_prefix }}"
+  range: "{{ mgmt_vnet_range }}"
+  subnets:
+    - {name: mgmt_subnet, prefix: "{{ mgmt_subnet }}"}
+    - {name: mgmt_bastion_subnet, prefix: "{{ mgmt_bastion_subnet }}"}
+    - {name: mgmt_proxy_subnet, prefix: "{{ mgmt_proxy_subnet }}"}
+- name: "{{ prod_vnet }}"
+  resourcegroup: "{{ prod_resourcegroup }}"
+  env_prefix: "{{ prod_prefix }}"
+  range: "{{ prod_vnet_range }}"
+  subnets:
+    - {name: prod_subnet, prefix: "{{ prod_subnet }}"}
+    - {name: prod_proxy_subnet, prefix: "{{ prod_proxy_subnet }}"}
+
+nodes:
+- name: "{{ location_prefix }}-{{ mgmt_prefix }}-jenkins"
+  resourcegroup: "{{ mgmt_resourcegroup }}"
+  vnet: "{{ mgmt_vnet }}"
+  subnet: mgmt_subnet
+  nodesize: "{{ defaultsize }}"
+  groups:
+    - mgmt
+    - jenkins
+- name: "{{location_prefix}}-{{mgmt_prefix}}-bastion"
+  resourcegroup: "{{ mgmt_resourcegroup }}"
+  vnet: "{{ mgmt_vnet }}"
+  subnet: mgmt_bastion_subnet
+  nodesize: "{{ defaultsize }}"
+  groups:
+    - mgmt
+    - bastion
+- name: "{{location_prefix}}-{{mgmt_prefix}}-proxy"
+  resourcegroup: "{{ mgmt_resourcegroup }}"
+  vnet: "{{ mgmt_vnet }}"
+  subnet: mgmt_proxy_subnet
+  nodesize: "{{ defaultsize }}"
+  groups:
+    - mgmt
+    - proxy

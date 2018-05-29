@@ -1,0 +1,12 @@
+---
+- name: configure Jenkins server
+  hosts: jenkins
+  become: yes
+  gather_facts: yes
+
+  #vars:
+
+  tasks:
+  - name: Install Package htop
+    apt:
+      name: htop
