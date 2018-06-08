@@ -1,0 +1,8 @@
+- name: Set nsg for subnets in {{ vnet.name}}
+  azure_rm_subnet:
+    resource_group: "{{ vnet.resourcegroup }}"
+    name: "{{ item.name }}"
+    address_prefix: "{{ item.prefix }}"
+    virtual_network: "{{ vnet.name }}"
+    security_group_name: "{{ item.nsg }}"
+  loop: "{{ vnet.subnets }}"

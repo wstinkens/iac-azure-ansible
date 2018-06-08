@@ -22,14 +22,28 @@
     loop_control:
       loop_var: rg
 
+  - name: Include Azure DNS Tasks list
+    include_tasks: ../tasks/azure_create_dns.yml
+
   - name: Include Azure VNets Task List
     include_tasks: ../tasks/azure_create_network.yml
     loop: "{{ virtualnetworks }}"
     loop_control:
       loop_var: vnet
+      
+  - name: Include Azure Virtual Network Peering Task List
+    include_tasks: ../tasks/azure_create_vnetpeering.yml
   
   - name: Include Azure Nodes Task List
     include_tasks: ../tasks/azure_create_nodes.yml
     loop: "{{ nodes }}"
     loop_control:
       loop_var: node
+
+  - name: Include Azure NSG Task List
+    include_tasks: ../tasks/azure_create_nsg.yml
+    loop: "{{ networksecuritygroups }}"
+    loop_control:
+      loop_var: nsg
+
+

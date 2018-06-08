@@ -1,4 +1,11 @@
-- samdoran.java
-- ohtomi.jenkins2
-- hxpro.nginx
-- Stouts.iptables
+# Install a role from GitHub
+- geerlingguy.jenkins
+- geerlingguy.nginx
+- geerlingguy.repo-epel
+- geerlingguy.git
+- geerlingguy.ansible
+- geerlingguy.docker
+- geerlingguy.pip
+- geerlingguy.nodejs
+- geerlingguy.awx
+- tersmitten.fail2ban

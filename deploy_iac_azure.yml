@@ -1,5 +1,4 @@
 ---
 - import_playbook: playbooks/create_azure_infra.yml
-- import_playbook: playbooks/config_jenkins.yml
-- import_playbook: playbooks/config_bastion.yml
-- import_playbook: playbooks/config_proxy.yml
+#- import_playbook: playbooks/config_nodes.yml
+- import_playbook: playbooks/set_azure_nsg.yml

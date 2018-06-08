@@ -26,5 +26,10 @@ tenant=xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 
 ```sh
 cd roles
-ansible-galaxy install -r requirements.yml
+ansible-galaxy install -r requirements.yml --roles-path .
 ```
+
+## Run Ansible Playbook
+
+```sh
+ansible-playbook deploy_iac_azure.yml

@@ -1,0 +1,18 @@
+  - name: Confirm deletion of resourcegroup {{ rg }}
+    pause:
+      prompt: "Are you sure you want to DELETE resourcegroup {{ rg }} (y/n)?"
+    register: confirm_delete
+
+  - debug:
+      msg: "Resourcegroup name: {{ rg }}"
+      verbosity: 2
+  - debug:
+      var: confirm_delete
+      verbosity: 2
+
+  - name: Force Delete Resource Group
+    azure_rm_resourcegroup:
+      name: "{{ rg }}"
+      state: absent
+      force: "{{ force_delete | default('yes') }}"
+    when: hostvars['localhost']['confirm_delete']['user_input'] == 'y'

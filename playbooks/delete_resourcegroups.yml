@@ -1,0 +1,15 @@
+---
+- name: Delete Azure Resource Groups
+  hosts: localhost
+    
+  tasks:
+  - name: Get All Resourcegroups
+    azure_rm_resourcegroup_facts:
+    register: rg_fact_output
+
+  - name: Incluse Azure Delete Resource Group task list 
+    include_tasks: ../tasks/azure_delete_resourcegroups.yml
+    loop: "{{rg_fact_output|json_query('ansible_facts.azure_resourcegroups[*].name')}}"
+    loop_control:
+      loop_var: rg
+  

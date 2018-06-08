@@ -1,0 +1,14 @@
+---
+- name:
+  hosts: localhost
+
+  tasks:
+  - name: Include Variables
+    include_vars:
+      dir: ../vars
+  
+  - name: Include Azure Set NSG Task List
+    include_tasks: ../tasks/azure_set_nsg.yml
+    loop: "{{ virtualnetworks }}"
+    loop_control:
+      loop_var: vnet

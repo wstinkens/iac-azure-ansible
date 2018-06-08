@@ -10,8 +10,9 @@ nodeimage:
   version: latest
 defaultsize: Standard_DS1_v2
 
-mgmt_prefix: mgmt
+dns_zone: jangles.xyz
 
+mgmt_prefix: mgmt
 mgmt_vnet_range: 10.0.0.0/16
 mgmt_subnet: 10.0.1.0/24
 mgmt_bastion_subnet: 10.0.2.0/24

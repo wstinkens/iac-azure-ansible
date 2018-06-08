@@ -4,9 +4,15 @@ mgmt_vnet: "{{location_prefix}}-{{mgmt_prefix}}-vnet"
 prod_resourcegroup: "{{location_prefix}}-{{prod_prefix}}-rg"
 prod_vnet: "{{location_prefix}}-{{prod_prefix}}-vnet"
 
+dns_resourcegroup: "{{location_prefix}}-dns-rg"
+
+prod_proxy: "{{ location_prefix }}-{{ prod_prefix }}-proxy"
+mgmt_proxy: "{{ location_prefix }}-{{ mgmt_prefix }}-proxy"
+
 resourcegroups:
 - name: "{{ mgmt_resourcegroup }}"
 - name: "{{ prod_resourcegroup }}"
+- name: "{{ dns_resourcegroup }}"
 
 virtualnetworks:
 - name: "{{ mgmt_vnet }}"
@@ -14,35 +20,27 @@ virtualnetworks:
   env_prefix: "{{ mgmt_prefix }}"
   range: "{{ mgmt_vnet_range }}"
   subnets:
-    - {name: mgmt_subnet, prefix: "{{ mgmt_subnet }}"}
-    - {name: mgmt_bastion_subnet, prefix: "{{ mgmt_bastion_subnet }}"}
-    - {name: mgmt_proxy_subnet, prefix: "{{ mgmt_proxy_subnet }}"}
+    - {name: mgmt_subnet, prefix: "{{ mgmt_subnet }}", nsg: mgmt_subnet_nsg}
+    - {name: mgmt_bastion_subnet, prefix: "{{ mgmt_bastion_subnet }}", nsg: mgmt_bastion_subnet_nsg}
+    - {name: mgmt_proxy_subnet, prefix: "{{ mgmt_proxy_subnet }}", nsg: mgmt_proxy_subnet_nsg}
 - name: "{{ prod_vnet }}"
   resourcegroup: "{{ prod_resourcegroup }}"
   env_prefix: "{{ prod_prefix }}"
   range: "{{ prod_vnet_range }}"
   subnets:
-    - {name: prod_subnet, prefix: "{{ prod_subnet }}"}
-    - {name: prod_proxy_subnet, prefix: "{{ prod_proxy_subnet }}"}
+    - {name: prod_subnet, prefix: "{{ prod_subnet }}", nsg: prod_subnet_nsg}
+    - {name: prod_proxy_subnet, prefix: "{{ prod_proxy_subnet }}", nsg: prod_proxy_subnet_nsg}
 
 nodes:
-- name: "{{ location_prefix }}-{{ mgmt_prefix }}-jenkins"
-  resourcegroup: "{{ mgmt_resourcegroup }}"
-  vnet: "{{ mgmt_vnet }}"
-  subnet: mgmt_subnet
+- name: "{{ prod_proxy }}"
+  resourcegroup: "{{ prod_resourcegroup }}"
+  vnet: "{{ prod_vnet }}"
+  subnet: prod_proxy_subnet
   nodesize: "{{ defaultsize }}"
   groups:
-    - mgmt
-    - jenkins
-- name: "{{location_prefix}}-{{mgmt_prefix}}-bastion"
-  resourcegroup: "{{ mgmt_resourcegroup }}"
-  vnet: "{{ mgmt_vnet }}"
-  subnet: mgmt_bastion_subnet
-  nodesize: "{{ defaultsize }}"
-  groups:
-    - mgmt
-    - bastion
-- name: "{{location_prefix}}-{{mgmt_prefix}}-proxy"
+    - prod
+    - proxy
+- name: "{{ mgmt_proxy }}"
   resourcegroup: "{{ mgmt_resourcegroup }}"
   vnet: "{{ mgmt_vnet }}"
   subnet: mgmt_proxy_subnet
@@ -50,3 +48,192 @@ nodes:
   groups:
     - mgmt
     - proxy
+- name: "{{ location_prefix }}-{{ mgmt_prefix }}-jenkins"
+  dnsname: jenkins
+  resourcegroup: "{{ mgmt_resourcegroup }}"
+  vnet: "{{ mgmt_vnet }}"
+  subnet: mgmt_subnet
+  nodesize: "{{ defaultsize }}"
+  groups:
+    - mgmt
+    - jenkins
+- name: "{{ location_prefix }}-{{ mgmt_prefix }}-awx"
+  dnsname: awx
+  resourcegroup: "{{ mgmt_resourcegroup }}"
+  vnet: "{{ mgmt_vnet }}"
+  subnet: mgmt_subnet
+  nodesize: "{{ defaultsize }}"
+  groups:
+    - mgmt
+    - awx
+- name: "{{ location_prefix }}-{{ mgmt_prefix }}-bastion"
+  dnsname: bastion
+  resourcegroup: "{{ mgmt_resourcegroup }}"
+  vnet: "{{ mgmt_vnet }}"
+  subnet: mgmt_bastion_subnet
+  nodesize: "{{ defaultsize }}"
+  groups:
+    - mgmt
+    - bastion
+- name: "{{ location_prefix }}-{{ prod_prefix }}-web"
+  dnsname: www
+  resourcegroup: "{{ prod_resourcegroup }}"
+  vnet: "{{ prod_vnet }}"
+  subnet: prod_subnet
+  nodesize: "{{ defaultsize }}"
+  groups:
+    - prod
+    - web
+
+
+networksecuritygroups:
+- name: mgmt_subnet_nsg
+  resourcegroup: "{{ mgmt_resourcegroup }}"
+  rules:
+    - {
+      name: AllowSSHfromExternal,
+      source: "{{ ipify_public_ip }}",
+      protocol: Tcp ,
+      range: 22,
+      access: Allow,
+      priority: 101 ,
+      direction: Inbound,
+    }
+    - {
+      name: AllowHTTPfromExternal,
+      source: "{{ ipify_public_ip }}",
+      protocol: Tcp,
+      range: 80,
+      access: Allow,
+      priority: 102 ,
+      direction: Inbound,
+    }
+    - {
+      name: AllowHTTPSfromExternal,
+      source: "{{ ipify_public_ip }}",
+      protocol: Tcp,
+      range: 22,
+      access: Allow,
+      priority: 103,
+      direction: Inbound,
+    }
+- name: mgmt_bastion_subnet_nsg
+  resourcegroup: "{{ mgmt_resourcegroup }}"
+  rules:
+    - {
+      name: AllowSSHfromExternal,
+      source: "{{ ipify_public_ip }}",
+      protocol: Tcp ,
+      range: 22,
+      access: Allow,
+      priority: 101 ,
+      direction: Inbound,
+    }
+    - {
+      name: AllowHTTPfromExternal,
+      source: "{{ ipify_public_ip }}",
+      protocol: Tcp,
+      range: 80,
+      access: Allow,
+      priority: 102 ,
+      direction: Inbound,
+    }
+    - {
+      name: AllowHTTPSfromExternal,
+      source: "{{ ipify_public_ip }}",
+      protocol: Tcp,
+      range: 22,
+      access: Allow,
+      priority: 103,
+      direction: Inbound,
+    }
+- name: mgmt_proxy_subnet_nsg
+  resourcegroup: "{{ mgmt_resourcegroup }}"
+  rules:
+    - {
+      name: AllowSSHfromExternal,
+      source: "{{ ipify_public_ip }}",
+      protocol: Tcp ,
+      range: 22,
+      access: Allow,
+      priority: 101 ,
+      direction: Inbound,
+    }
+    - {
+      name: AllowHTTPfromExternal,
+      source: "{{ ipify_public_ip }}",
+      protocol: Tcp,
+      range: 80,
+      access: Allow,
+      priority: 102 ,
+      direction: Inbound,
+    }
+    - {
+      name: AllowHTTPSfromExternal,
+      source: "{{ ipify_public_ip }}",
+      protocol: Tcp,
+      range: 22,
+      access: Allow,
+      priority: 103,
+      direction: Inbound,
+    }
+- name: prod_subnet_nsg
+  resourcegroup: "{{ prod_resourcegroup }}"
+  rules:
+    - {
+      name: AllowSSHfromExternal,
+      source: "{{ ipify_public_ip }}",
+      protocol: Tcp ,
+      range: 22,
+      access: Allow,
+      priority: 101 ,
+      direction: Inbound,
+    }
+    - {
+      name: AllowHTTPfromExternal,
+      source: "{{ ipify_public_ip }}",
+      protocol: Tcp,
+      range: 80,
+      access: Allow,
+      priority: 102 ,
+      direction: Inbound,
+    }
+    - {
+      name: AllowHTTPSfromExternal,
+      source: "{{ ipify_public_ip }}",
+      protocol: Tcp,
+      range: 22,
+      access: Allow,
+      priority: 103,
+      direction: Inbound,
+    }
+- name: prod_proxy_subnet_nsg
+  resourcegroup: "{{ prod_resourcegroup }}"
+  rules:
+    - {
+      name: AllowSSHfromExternal,
+      source: "{{ ipify_public_ip }}",
+      protocol: Tcp ,
+      range: 22,
+      access: Allow,
+      priority: 101 ,
+      direction: Inbound,
+    }
+    - {
+      name: AllowHTTPfromExternal,
+      source: "{{ ipify_public_ip }}",
+      protocol: Tcp,
+      range: 80,
+      access: Allow,
+      priority: 102 ,
+      direction: Inbound,
+    }
+    - {
+      name: AllowHTTPSfromExternal,
+      source: "{{ ipify_public_ip }}",
+      protocol: Tcp,
+      range: 22,
+      access: Allow,
+      priority: 103,
+      direction: Inbound,
+    }

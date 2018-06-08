@@ -1,0 +1,4 @@
+  - name: Create Azure DNS zone {{ dns_zone }}
+    azure_rm_dnszone:
+      resource_group: "{{ dns_resourcegroup }}"
+      name: "{{ dns_zone }}"

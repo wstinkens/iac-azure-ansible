@@ -49,6 +49,57 @@
       var: piptask_result.state.ip_address
       verbosity: 2
 
+  - name: Set prod proxy IP fact
+    set_fact:
+      prod_proxy_ip: "{{ piptask_result.state.ip_address }}"
+    when: node.name == prod_proxy
+
+  - name: Set mgmt proxy IP fact
+    set_fact:
+      mgmt_proxy_ip: "{{ piptask_result.state.ip_address }}"
+    when: node.name == mgmt_proxy
+  
+  - name: create A record {{ node.dnsname }} for {{ node.name }} in DNS Zone {{ dns_zone }}
+    azure_rm_dnsrecordset:
+      resource_group: "{{ dns_resourcegroup }}"
+      relative_name: "{{ node.dnsname }}"
+      zone_name: "{{ dns_zone }}"
+      record_type: A
+      state: present
+      records:
+        - entry: "{{ mgmt_proxy_ip }}"
+    when: 
+      - node.dnsname is defined
+      - node.dnsname != "bastion"
+      - node.resourcegroup == mgmt_resourcegroup
+
+  - name: create A record {{ node.dnsname }} for {{ node.name }} in DNS Zone {{ dns_zone }}
+    azure_rm_dnsrecordset:
+      resource_group: "{{ dns_resourcegroup }}"
+      relative_name: "{{ node.dnsname }}"
+      zone_name: "{{ dns_zone }}"
+      record_type: A
+      state: present
+      records:
+        - entry: "{{ prod_proxy_ip }}"
+    when: 
+      - node.dnsname is defined
+      - node.dnsname != "bastion"
+      - node.resourcegroup == prod_resourcegroup
+
+  - name: create A record {{ node.dnsname }} for {{ node.name }} in DNS Zone {{ dns_zone }}
+    azure_rm_dnsrecordset:
+      resource_group: "{{ dns_resourcegroup }}"
+      relative_name: "{{ node.dnsname }}"
+      zone_name: "{{ dns_zone }}"
+      record_type: A
+      state: present
+      records:
+        - entry: "{{ piptask_result.state.ip_address }}"
+    when:
+      - node.dnsname is defined
+      - node.dnsname == "bastion"
+
   - name: add {{ node.name }} host to in memory inventory
     add_host:
       hostname: "{{ piptask_result.state.ip_address }}"

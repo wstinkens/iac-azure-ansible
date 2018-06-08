@@ -1,0 +1,13 @@
+- name: Create Allow {{ nsg.name }} in {{ nsg.resourcegroup }}
+  azure_rm_securitygroup:
+    resource_group: "{{ nsg.resourcegroup }}"
+    name: "{{ nsg.name }}"
+    rules:
+      - name: "{{ item.name }}"
+        source_address_prefix: "{{ item.source }}"
+        protocol: "{{ item.protocol }}"
+        destination_port_range: "{{ item.range }}"
+        access: "{{ item.access }}"
+        priority: "{{ item.priority }}"
+        direction: "{{ item.direction }}"
+  loop: "{{ nsg.rules }}"

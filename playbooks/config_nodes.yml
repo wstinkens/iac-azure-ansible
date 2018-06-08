@@ -1,0 +1,59 @@
+---
+- name: configure Bastion server
+  hosts: bastion
+  become: yes
+  gather_facts: yes
+
+  tasks:
+  - name: Include fail2ban role
+    include_role: 
+      name: tersmitten.fail2ban
+  
+- name: configure Jenkins server
+  hosts: jenkins
+  become: yes
+  gather_facts: yes
+
+  tasks:
+  - name: Include jenkins role
+    include_role: 
+      name: geerlingguy.jenkins
+
+- name: configure awx server
+  hosts: awx
+  become: yes
+  gather_facts: yes
+
+  vars:
+    awx_version: "devel"
+    nodejs_version: "6.x"
+    pip_install_packages:
+      - name: docker-py
+
+  roles:
+    - geerlingguy.git
+    - geerlingguy.ansible
+    - geerlingguy.docker
+    - geerlingguy.pip
+    - geerlingguy.nodejs
+    - geerlingguy.awx
+
+# - name: configure Proxy server
+#   hosts: proxy
+#   become: yes
+#   gather_facts: yes  
+
+#   tasks:
+#   - name: Include jenkins role
+#     include_role: 
+#       name: geerlingguy.nginx
+
+# - name: configure Web server
+#   hosts: web
+#   become: yes
+#   gather_facts: yes  
+
+#   tasks:
+#   - name: Include jenkins role
+#     include_role: 
+#       name: geerlingguy.nginx

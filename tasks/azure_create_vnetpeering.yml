@@ -1,0 +1,6 @@
+  - name: Create virtual network peering between {{ mgmt_vnet }} and {{ prod_vnet }}
+    azure_rm_virtualnetworkpeering:
+      resourcegroup1: "{{ mgmt_resourcegroup }}"
+      resourcegroup2: "{{ prod_resourcegroup }}"
+      virtualnetwork1: "{{ mgmt_vnet }}"
+      virtualnetwork2: "{{ prod_vnet }}"
